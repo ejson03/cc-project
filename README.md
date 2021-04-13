@@ -11,7 +11,7 @@ secret_key = iam secret key
 ```
 
 ```
-chmod 600 <key_name>.pem
+chmod 400 <key_name>.pem
 ```
 
 IAM user should have complete ec2 acccess
