@@ -3,7 +3,29 @@
   apt:
     name: nginx
     state: latest
+    
 - name: Make sure Nginx is running
-  systemd:
+  service:
     state: started
     name: nginx
+
+- name : copy nginx config file and restart
+  copy:
+    src: site.cfg
+    dest: /etc/nginx/sites-available/static_site.cfg
+
+- name: create symlink
+  file:
+    src: /etc/nginx/sites-available/static_site.cfg
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+
+- name: copy website 
+  copy:
+    src: website/
+    dest: /usr/share/nginx/html
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
