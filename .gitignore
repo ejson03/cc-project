@@ -37,3 +37,4 @@ terraform.rc
 # pem file for aws ssh
 *.pem
 devops.pem
+target

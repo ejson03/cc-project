@@ -1,32 +1,19 @@
-# Step 1
+# Devops Practice
 
-Prepare filte terraform.tfvars with below variables
 
-```
-ssh_user = ssh user
-key_name = key name generated in ec2 secrets
-private_key_path = path to pem file generated in ec2 secrets
-access_key = iam access key
-secret_key = iam secret key
-```
+This repo contains easy to build devops projects using following resources
 
-```
-chmod 400 <key_name>.pem
-```
+- [AWS](https://aws.amazon.com/)
+- [Terraform](https://www.terraform.io/docs/index.html)
+- [Ansible](https://docs.ansible.com/ansible/latest/index.html)
 
-IAM user should have complete ec2 acccess
 
-# Step 2
+## Features
 
-```
-terraform init
-terraform plan
-terraform apply
-```
+- [Deployed static website to aws ec2 in vpc,subnet using terraform,ansible](https://github.com/ejson03/cc-project/tree/main/static-website-ec2)
+- [Deployed java lambda function with aws gateway access using terraform](https://github.com/ejson03/cc-project/tree/main/java-lambda)
 
-# Step 3
-```
-ansible-playbook  -i <public ip of ec2>, --private-key <key_name>.pem nginx.yaml
-```
+
+
 
 
