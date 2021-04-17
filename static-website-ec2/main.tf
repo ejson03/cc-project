@@ -1,10 +1,3 @@
-variable "access_key" {
-  description = "Access key of IAM user"
-}
-variable "secret_key" {
-  description = "Secret key of IAM user"
-}
-
 variable "ssh_user" {
   description = "SSH user of EC2 instance"
 }
@@ -19,8 +12,7 @@ variable "private_key_path" {
 
 provider "aws" {
     region = "ap-south-1"
-    access_key = var.access_key
-    secret_key = var.secret_key
+    profile = "devops-cloud"
 }
 
 # 1. Create VPC
