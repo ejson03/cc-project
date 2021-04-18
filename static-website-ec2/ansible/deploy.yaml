@@ -5,4 +5,5 @@
   become: yes
 
   roles:
+  - git
   - nginx

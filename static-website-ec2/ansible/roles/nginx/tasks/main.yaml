@@ -26,11 +26,6 @@
     dest: /etc/nginx/sites-enabled/default
     state: link
 
-- name: copy website 
-  copy:
-    src: ansible/website/
-    dest: /usr/share/nginx/html
-
 - name: restart nginx
   service:
     name: nginx

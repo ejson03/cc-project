@@ -1,0 +1,6 @@
+- name: Clone repo into dir
+  git: 
+    repo: "https://github.com/Darlene-Naz/Darlene-Naz.github.io.git"
+    dest: /usr/share/nginx/html
+
+
