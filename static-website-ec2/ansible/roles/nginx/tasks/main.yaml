@@ -17,7 +17,7 @@
 
 - name : copy nginx config file and restart
   copy:
-    src: site.cfg
+    src: ansible/site.cfg
     dest: /etc/nginx/sites-available/static_site.cfg
 
 - name: create symlink
@@ -28,7 +28,7 @@
 
 - name: copy website 
   copy:
-    src: website/
+    src: ansible/website/
     dest: /usr/share/nginx/html
 
 - name: restart nginx

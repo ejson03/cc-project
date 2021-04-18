@@ -1,8 +1,5 @@
-
-
-
 variable "lambda_payload_filename" {
-  default = "../target/java-lambda-1.0-SNAPSHOT.jar"
+  default = "./target/java-lambda-1.0-SNAPSHOT.jar"
 }
 
 variable "lambda_function_handler" {
@@ -12,4 +9,9 @@ variable "lambda_function_handler" {
 variable "lambda_runtime" {
   default = "java8"
 }
+
+variable "region" {
+  default = "ap-south-1"
+}
+
 

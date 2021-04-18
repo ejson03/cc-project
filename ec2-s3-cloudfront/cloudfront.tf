@@ -1,9 +1,10 @@
 locals {
-    s3_origin_id = "S3-${aws_s3_bucket.image-bucket.bucket}"
+    s3_origin_id = "S3-${module.s3.bucket_name}"
+    domain_name = module.s3.domain_name
 }
 resource "aws_cloudfront_distribution" "s3_distribution" {
     origin {
-        domain_name = aws_s3_bucket.image-bucket.bucket_regional_domain_name
+        domain_name = local.domain_name
         origin_id = local.s3_origin_id
     }
     enabled = true
@@ -36,16 +37,16 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     connection {
         type    = "ssh"
         user    = "ubuntu"
-        host    = aws_instance.webserver.public_ip
+        host    = module.ec2.public_ip
         port    = 22
         private_key = tls_private_key.ec2_key.private_key_pem
     }
 
-    provisioner "remote-exec" {
-        inline  = [
-            "sudo su << EOF",
-            "sed s#img/undraw_banner2.png#${self.domain_name}/${aws_s3_bucket_object.image-upload.key}#g /var/www/html/index.html",
-            "EOF"
-        ]
-    }
+    # provisioner "remote-exec" {
+    #     inline  = [
+    #         "sudo su << EOF",
+    #         "sed s#img/undraw_banner2.png#${self.domain_name}/${aws_s3_bucket_object.image-upload.key}#g /var/www/html/index.html",
+    #         "EOF"
+    #     ]
+    # }
 }
