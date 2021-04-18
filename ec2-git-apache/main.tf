@@ -32,19 +32,31 @@ resource "aws_key_pair" "ec2_key" {
     public_key = tls_private_key.ec2_key.public_key_openssh
 }
 
+module "remote" {
+  source = "github.com/ejson03/terraform-basic-modules"
+}
+
 module "vpc" {
-  source = "../modules/vpc"
+  source = "./.terraform/modules/remote/vpc"
   vpc_cidr = "10.0.0.0/16"
   public_cidr = "10.0.1.0/24"
   region = var.region
+  # subnet_azs = ["${var.region}a"]
 }
 
+# module "security-group" {
+#   source = "../../terraform-basic-modules/security-group"
+#   vpc_id = module.vpc.vpc_id
+# }
+
 module "ec2" {
-  source = "../modules/ec2"
+  source = "./.terraform/modules/remote/ec2"
   instance_type = "t2.micro"
   region = var.region
+  #subnets = module.vpc.public_subnets
   subnet_id = module.vpc.subnet_id
   vpc_security_group_id = module.vpc.vpc_security_group_id
+  #vpc_security_group_id = module.security-group.security_group_id
   create_user_data = true
   key_name = aws_key_pair.ec2_key.key_name
   template_file = "userdata.tpl"
