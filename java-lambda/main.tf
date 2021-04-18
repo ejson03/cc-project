@@ -19,6 +19,3 @@ module "iam" {
   policy_file_name = "lambda_policy.json"
 }
 
-output "" {
-  value = 
-}
