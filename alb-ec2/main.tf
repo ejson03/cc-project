@@ -32,6 +32,11 @@ resource "aws_key_pair" "ec2_key" {
     public_key = tls_private_key.ec2_key.public_key_openssh
 }
 
+module "remote" {
+  source = "github.com/ejson03/terraform-basic-modules"
+}
+
+
 module "vpc" {
   source = "../../terraform-basic-modules/vpc"
   vpc_cidr = "10.0.0.0/16"

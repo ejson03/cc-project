@@ -86,13 +86,13 @@ resource "null_resource" "provison" {
   }
 }
 
-resource "null_resource" "ansible" {
-  count = var.if_provisioner ? 1 : 0
-  provisioner "local-exec" {
-    command = "ansible-playbook  -i ${aws_instance.project-instance.public_ip}, --private-key ${local_file.private_key.filename} ansible/deploy.yaml"
-  }
-}
+# resource "null_resource" "ansible" {
+#   count = var.if_provisioner ? 1 : 0
+#   provisioner "local-exec" {
+#     command = "ansible-playbook  -i ${aws_instance.project-instance.public_ip}, --private-key ${local_file.private_key.filename} ansible/deploy.yaml"
+#   }
+# }
 
-output "public_dns" {
-  value = aws_instance.project-instance.public_dns
-}
+# output "public_dns" {
+#   value = aws_instance.project-instance.public_dns
+# }
