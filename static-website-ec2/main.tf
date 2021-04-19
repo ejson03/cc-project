@@ -7,29 +7,29 @@ terraform {
 }
 
 provider "aws" {
-    region = "ap-south-1"
-    profile = "devops-cloud"
+  region  = "ap-south-1"
+  profile = "devops-cloud"
 }
 
 resource "tls_private_key" "ec2_key" {
   algorithm = "RSA"
-  rsa_bits = 4096
+  rsa_bits  = 4096
 }
 
 resource "local_file" "private_key" {
-    depends_on = [
-      tls_private_key.ec2_key
-    ]
-    content = tls_private_key.ec2_key.private_key_pem
-    filename = "webserver.pem"
+  depends_on = [
+    tls_private_key.ec2_key
+  ]
+  content  = tls_private_key.ec2_key.private_key_pem
+  filename = "webserver.pem"
 }
 
 resource "aws_key_pair" "ec2_key" {
-    depends_on = [
-      tls_private_key.ec2_key
-    ]
-    key_name = "webserver"
-    public_key = tls_private_key.ec2_key.public_key_openssh
+  depends_on = [
+    tls_private_key.ec2_key
+  ]
+  key_name   = "webserver"
+  public_key = tls_private_key.ec2_key.public_key_openssh
 }
 
 data "aws_ami" "ubuntu" {
@@ -45,43 +45,51 @@ data "aws_ami" "ubuntu" {
     values = ["hvm"]
   }
 
-  owners = ["099720109477"] 
+  owners = ["099720109477"]
 }
 
 module "vpc" {
-  source = "../modules/vpc"
-  vpc_cidr = "10.0.0.0/16"
-  public_cidr = "10.0.1.0/24"
-  region = var.region
+  source      = "../../terraform-basic-modules/vpc"
+  vpc_cidr    = "10.0.0.0/16"
+  public_cidr = ["10.0.1.0/24"]
+  region      = var.region
+  subnet_azs  = ["${var.region}a"]
 }
 
-resource "aws_instance" "project-instance" {
-  ami               = data.aws_ami.ubuntu.id
-  instance_type     = "t2.micro"
-  availability_zone = "${var.region}a"
-  key_name          = aws_key_pair.ec2_key.key_name
-  subnet_id = module.vpc.subnet_id 
-  vpc_security_group_ids = [  module.vpc.vpc_security_group_id ] 
-  associate_public_ip_address = true
+module "security-group" {
+  source = "../../terraform-basic-modules/security-group"
+  vpc_id = module.vpc.vpc_id
+}
 
+module "ec2" {
+  source = "../../terraform-basic-modules/ec2"
+  instance_type = "t2.micro"
+  region = var.region
+  subnets = module.vpc.public_subnets
+  vpc_security_group_id = module.security-group.security_group_id
+  key_name = aws_key_pair.ec2_key.key_name
+  instance_count = 1
+}
 
+resource "null_resource" "provison" {
 
- provisioner "remote-exec" {
+  count = var.if_provisioner ? 1 : 0
+  provisioner "remote-exec" {
     inline = ["echo 'Wait until SSH is ready'"]
 
     connection {
-        type        = "ssh"
-        user        = "ubuntu"
-        private_key = file(local_file.private_key.filename)
-        host        = aws_instance.project-instance.public_ip
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file(local_file.private_key.filename)
+      host        = module.ec2.public_ip.0
     }
-}
-  provisioner "local-exec" {
-    command = "ansible-playbook  -i ${aws_instance.project-instance.public_ip}, --private-key ${local_file.private_key.filename} ansible/nginx.yaml"
   }
-  
-  tags = {
-    Name = "project-instance"
+}
+
+resource "null_resource" "ansible" {
+  count = var.if_provisioner ? 1 : 0
+  provisioner "local-exec" {
+    command = "ansible-playbook  -i ${aws_instance.project-instance.public_ip}, --private-key ${local_file.private_key.filename} ansible/deploy.yaml"
   }
 }
 
