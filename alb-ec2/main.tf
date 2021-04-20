@@ -38,7 +38,7 @@ module "remote" {
 
 
 module "vpc" {
-  source = "../../terraform-basic-modules/vpc"
+  source = "./.terraform/modules/remote/vpc"
   vpc_cidr = "10.0.0.0/16"
   public_cidr = ["10.0.1.0/24", "10.0.2.0/24"]
   region = var.region
@@ -46,12 +46,12 @@ module "vpc" {
 }
 
 module "security-group" {
-  source = "../../terraform-basic-modules/security-group"
+  source = "./.terraform/modules/remote/security-group"
   vpc_id = module.vpc.vpc_id
 }
 
 module "ec2" {
-  source = "../../terraform-basic-modules/ec2"
+  source = "./.terraform/modules/remote/ec2"
   instance_type = "t2.micro"
   region = var.region
   subnets = module.vpc.public_subnets
@@ -63,7 +63,7 @@ module "ec2" {
 }
 
 module "alb" {
-  source = "../../terraform-basic-modules/alb"
+  source = "./.terraform/modules/remote/alb"
   subnet = module.vpc.public_subnets
   security_group_id = module.security-group.security_group_id
   vpc_id = module.vpc.vpc_id

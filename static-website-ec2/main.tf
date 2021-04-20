@@ -32,6 +32,10 @@ resource "aws_key_pair" "ec2_key" {
   public_key = tls_private_key.ec2_key.public_key_openssh
 }
 
+module "remote" {
+  source = "github.com/ejson03/terraform-basic-modules"
+}
+
 data "aws_ami" "ubuntu" {
   most_recent = true
 
@@ -49,7 +53,7 @@ data "aws_ami" "ubuntu" {
 }
 
 module "vpc" {
-  source      = "../../terraform-basic-modules/vpc"
+  source      = "./.terraform/modules/remote/vpc"
   vpc_cidr    = "10.0.0.0/16"
   public_cidr = ["10.0.1.0/24"]
   region      = var.region
@@ -57,12 +61,12 @@ module "vpc" {
 }
 
 module "security-group" {
-  source = "../../terraform-basic-modules/security-group"
+  source = "./.terraform/modules/remote/security-group"
   vpc_id = module.vpc.vpc_id
 }
 
 module "ec2" {
-  source = "../../terraform-basic-modules/ec2"
+  source = "./.terraform/modules/remote/ec2"
   instance_type = "t2.micro"
   region = var.region
   subnets = module.vpc.public_subnets

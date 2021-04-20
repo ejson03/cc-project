@@ -11,12 +11,16 @@ provider "aws" {
   profile = "devops-cloud"
 }
 
+module "remote" {
+  source = "github.com/ejson03/terraform-basic-modules"
+}
+
 module "ec2-apache-git" {
   source = "../ec2-git-apache"
 }
 
 module "s3" {
-  source = "../modules/s3"
+  source = "./.terraform/modules/remote/s3"
   bucket_name = "devops-cloud"
 }
 

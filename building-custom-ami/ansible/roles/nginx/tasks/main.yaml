@@ -1,0 +1,37 @@
+---
+
+- name: Update and upgrade apt packages
+  apt:
+    update_cache: yes
+    upgrade: 'yes'
+
+- name: Ensure Nginx is at the latest version
+  apt:
+    name: nginx
+    state: latest
+    
+- name: Make sure Nginx is running
+  service:
+    state: started
+    name: nginx
+
+- name : copy nginx config file and restart
+  copy:
+    src: ansible/site.cfg
+    dest: /etc/nginx/sites-available/static_site.cfg
+
+- name: create symlink
+  file:
+    src: /etc/nginx/sites-available/static_site.cfg
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+
+- name: Clone repo into dir
+  git: 
+    repo: "https://github.com/Darlene-Naz/Darlene-Naz.github.io.git"
+    dest: /usr/share/nginx/html
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
