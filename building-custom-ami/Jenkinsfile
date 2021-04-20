@@ -1,0 +1,25 @@
+pipeline {
+    agent any 
+    stages {
+        stage('Build') { 
+            steps {
+                sh '''
+                    cd building-custom-ami/build
+                    terraform init
+                    terraform apply --auto-aprove
+                '''
+            }
+        }
+        stage('Test') { 
+            steps {
+                sh '''
+                    cd building-custom-ami/test
+                    terraform init
+                    terraform apply --auto-aprove
+
+                '''
+            }
+        }
+       
+    }
+}

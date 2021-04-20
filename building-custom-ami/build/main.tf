@@ -25,6 +25,6 @@ module "vpc" {
 
 resource "null_resource" "packer" {
   provisioner "local-exec" {
-    command = "packer build -var subnet_id=${module.vpc.public_subnets.0} ../vm.pkr.hcl"
+    command = "packer build -var subnet_id=${module.vpc.public_subnets.0} vm.pkr.hcl"
   }
 }
