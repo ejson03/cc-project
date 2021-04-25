@@ -1,10 +1,10 @@
 const dynamodb = require('aws-sdk/clients/dynamodb');
 const docClient = new dynamodb.DocumentClient();
 
-const tableName = "test";
+const tableName = process.env.TABLE;
 
 
-exports.readHandler = function(event) => {
+exports.readHandler = function(event) =>{
     if (event.httpMethod !== 'GET') {
         throw new Error(`getAllItems only accept GET method, you tried: ${event.httpMethod}`);
     }

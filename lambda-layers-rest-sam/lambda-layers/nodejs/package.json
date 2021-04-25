@@ -1,0 +1,10 @@
+{
+    "name": "rest-api-demo",
+    "description": "rest api demo",
+    "version": "0.0.1",
+    "main": "index.js",
+    "private": true,
+    "dependencies": {
+        "winston": "^3.3.3"
+    }
+}

@@ -2,14 +2,23 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: lambda-test
 Transform:
 - AWS::Serverless-2016-10-31
+Parameters:
+  TableName:
+    Type: String
+    Description: The DynamoDB table for storing Person information.
+    Default: PersonTable
 Resources:
   ExampleDB:
-    Type: AWS::Serverless::SimpleTable
+    Type: AWS::DynamoDB::Table
     Properties:
-      TableName: test
-      PrimaryKey:
-        Name: id
-        Type: String
+      TableName:
+        Ref: TableName
+      AttributeDefinitions:
+      - AttributeName: Id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: Id
+        KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2

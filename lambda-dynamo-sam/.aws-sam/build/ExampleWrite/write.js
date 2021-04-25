@@ -1,7 +1,7 @@
 const dynamodb = require('aws-sdk/clients/dynamodb');
 const docClient = new dynamodb.DocumentClient();
 
-const tableName = "test";
+const tableName = process.env.TABLE;
 
 exports.writeHandler = async (event) =>{
     if (event.httpMethod !== 'POST') {
@@ -19,7 +19,7 @@ exports.writeHandler = async (event) =>{
 
     const response = {
         'statusCode': 200,
-        'body': JSON.stringify(body))
+        'body': JSON.stringify(body),
     };
 
     console.info(`response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`);

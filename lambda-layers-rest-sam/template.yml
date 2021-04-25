@@ -1,0 +1,129 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  sam-app
+
+Transform:
+- AWS::Serverless-2016-10-31
+
+Parameters:
+  AppName:
+    Type: String
+    Description: Application Name. Used for naming resources
+    
+
+Globals:
+  Function:
+    Timeout: 900
+    MemorySize: 1024
+    Layers:
+      - !Ref LambdaLayer
+    Environment:
+      Variables:
+        EMPLOYEES_TABLE: !Ref EmployeesTable
+
+Resources:
+
+    SongsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${AppName}-table'
+      AttributeDefinitions:
+        - AttributeName: artist
+          AttributeType: S
+        - AttributeName: song
+          AttributeType: S
+      KeySchema:
+        - AttributeName: artist
+          KeyType: HASH
+        - AttributeName: song
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+
+    LambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub '${AppName}-lambda-layer'
+      Description: !Sub '${AppName} Lambda Layer'
+      ContentUri: lambda-layer/
+      CompatibleRuntimes:
+        - nodejs14.x
+      RetentionPolicy: Retain
+
+    LambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: !Sub '${AppName}-lambda-role'
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - sts:AssumeRole
+        Path: '/'
+        Policies:
+          - PolicyName: cloudwatch
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:DescribeLogGroups
+                    - logs:DescribeLogStreams
+                    - logs:PutLogEvents
+                  Resource:
+                    - '*'
+          - PolicyName: DDB
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - dynamodb:*
+                  Resource:
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EmployeesDDBTable}/*'
+                    - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EmployeesDDBTable}'
+            
+    GetData:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${AppName}-get-data'
+      Uri: src/get
+      Handler: index.lambdaHandler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Timeout: 100
+      Description: A Lambda function that returns a static string.
+      Role:
+        Fn::GetAtt: LambdaRole.Arn
+
+    PutData:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${AppName}-put-data'
+      Uri: src/put
+      Handler: index.lambdaHandler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Timeout: 100
+      Description: A Lambda function that returns a static string.
+      Role:
+        Fn::GetAtt: LambdaRole.Arn
+
+Outputs:
+  GetDataArn:
+    Description: ARN of Get Data Lambda Function
+    Value: !GetAtt GetData.Arn
+    Export:
+      Name: !Sub '${AppName}-get-data-arn'
+  PutDataArn:
+    Description: ARN of Put Data Lambda Function
+    Value: !GetAtt PutData.Arn
+    Export:
+      Name: !Sub '${AppName}-put-data-arn'

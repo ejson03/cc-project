@@ -22,9 +22,9 @@ This repo contains easy to build devops projects using following resources
 
 - [Created load balancer](https://github.com/ejson03/cc-project/tree/main/ec2-alb)
 
--[Created ec2 ami image using packer,terraform,ansible](https://github.com/ejson03/cc-project/tree/main/ec2-packer)
+- [Created ec2 ami image using packer,terraform,ansible](https://github.com/ejson03/cc-project/tree/main/ec2-packer)
 
--[Created simple crud api using lambda,dynamodb, api gateway and sam](https://github.com/ejson03/cc-project/tree/main/lambda-dynamo-sam)
+- [Created simple crud api using lambda,dynamodb, api gateway and sam](https://github.com/ejson03/cc-project/tree/main/lambda-dynamo-sam)
 
 
 

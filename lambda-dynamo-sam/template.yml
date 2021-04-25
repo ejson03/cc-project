@@ -5,15 +5,24 @@ Description: >-
 Transform:
 - AWS::Serverless-2016-10-31
 
+Parameters:
+  TableName:
+    Type: String
+    Description: The DynamoDB table for storing Person information.
+    Default: 'PersonTable'
+
 Resources:
 
   ExampleDB:
-    Type: AWS::Serverless::SimpleTable
+    Type: AWS::DynamoDB::Table
     Properties:
-      TableName: test
-      PrimaryKey:
-        Name: id
-        Type: String
+      TableName: !Ref TableName
+      AttributeDefinitions:
+        - AttributeName: Id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Id
+          KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2
@@ -21,13 +30,14 @@ Resources:
   ExampleWrite:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/
+      CodeUri: src/write
       Handler: write.writeHandler
       Runtime: nodejs14.x
       Description: A simple example to post
       Policies:
         - DynamoDBWritePolicy:
             TableName: !Ref ExampleDB
+      
       Events:
         Post:
           Type: Api
@@ -39,7 +49,7 @@ Resources:
   ExampleRead:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/
+      CodeUri: src/read
       Handler: read.readHandler
       Runtime: nodejs14.x
       Description: A simple example includes a HTTP get method to get all items from a DynamoDB table.
@@ -53,9 +63,6 @@ Resources:
             Path: /read
             Method: get
   
-  
-  
-
 Outputs:
   WebEndpoint:
     Description: "API Gateway endpoint URL for Prod stage"
