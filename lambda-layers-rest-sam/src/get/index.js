@@ -14,7 +14,7 @@ exports.lambdaHandler = async (event, context) => {
 		}
 
 		const params = {
-			TableName : process.env.EMPLOYEES_TABLE,
+			TableName : process.env.SongsTable,
 			Key: event
 		};
 

@@ -39,6 +39,8 @@ Resources:
           Properties:
             Path: /write
             Method: post
+            RestApiId:
+              Ref: ServerApi
   ExampleRead:
     Type: AWS::Serverless::Function
     Properties:
@@ -57,6 +59,12 @@ Resources:
           Properties:
             Path: /read
             Method: get
+            RestApiId:
+              Ref: ServerApi
+  ServerApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
 Outputs:
   WebEndpoint:
     Description: API Gateway endpoint URL for Prod stage

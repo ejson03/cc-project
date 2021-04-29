@@ -9,6 +9,7 @@ Parameters:
   AppName:
     Type: String
     Description: Application Name. Used for naming resources
+    Default: App
     
 
 Globals:
@@ -19,37 +20,37 @@ Globals:
       - !Ref LambdaLayer
     Environment:
       Variables:
-        EMPLOYEES_TABLE: !Ref EmployeesTable
+        SongsTable: !Ref SongsTable
 
 Resources:
 
     SongsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: !Sub '${AppName}-table'
-      AttributeDefinitions:
-        - AttributeName: artist
-          AttributeType: S
-        - AttributeName: song
-          AttributeType: S
-      KeySchema:
-        - AttributeName: artist
-          KeyType: HASH
-        - AttributeName: song
-          KeyType: RANGE
-      ProvisionedThroughput:
-        ReadCapacityUnits: 2
-        WriteCapacityUnits: 2
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: !Sub '${AppName}-table'
+        AttributeDefinitions:
+          - AttributeName: artist
+            AttributeType: S
+          - AttributeName: song
+            AttributeType: S
+        KeySchema:
+          - AttributeName: artist
+            KeyType: HASH
+          - AttributeName: song
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 2
+          WriteCapacityUnits: 2
 
     LambdaLayer:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-      LayerName: !Sub '${AppName}-lambda-layer'
-      Description: !Sub '${AppName} Lambda Layer'
-      ContentUri: lambda-layer/
-      CompatibleRuntimes:
-        - nodejs14.x
-      RetentionPolicy: Retain
+      Type: AWS::Serverless::LayerVersion
+      Properties:
+        LayerName: !Sub '${AppName}-lambda-layer'
+        Description: !Sub '${AppName} Lambda Layer'
+        ContentUri: lambda-layer/
+        CompatibleRuntimes:
+          - nodejs14.x
+        RetentionPolicy: Retain
 
     LambdaRole:
       Type: AWS::IAM::Role
@@ -89,32 +90,53 @@ Resources:
                   Resource:
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EmployeesDDBTable}/*'
                     - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EmployeesDDBTable}'
+
+    ServerApi:
+      Type: AWS::Serverless::Api
+      Properties:
+        StageName: prod
             
     GetData:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub '${AppName}-get-data'
-      Uri: src/get
-      Handler: index.lambdaHandler
-      Runtime: nodejs14.x
-      MemorySize: 128
-      Timeout: 100
-      Description: A Lambda function that returns a static string.
-      Role:
-        Fn::GetAtt: LambdaRole.Arn
+      Type: AWS::Serverless::Function
+      Properties:
+        FunctionName: !Sub '${AppName}-get-data'
+        CodeUri: src/get
+        Handler: index.lambdaHandler
+        Runtime: nodejs14.x
+        MemorySize: 128
+        Timeout: 100
+        Description: A Lambda function that returns a static string.
+        Role:
+          Fn::GetAtt: LambdaRole.Arn
+        Events:
+          Api:
+            Type: Api
+            Properties:
+              Path: /read
+              Method: get
+              RestApiId:
+                Ref: ServerApi
 
     PutData:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub '${AppName}-put-data'
-      Uri: src/put
-      Handler: index.lambdaHandler
-      Runtime: nodejs14.x
-      MemorySize: 128
-      Timeout: 100
-      Description: A Lambda function that returns a static string.
-      Role:
-        Fn::GetAtt: LambdaRole.Arn
+      Type: AWS::Serverless::Function
+      Properties:
+        FunctionName: !Sub '${AppName}-put-data'
+        CodeUri: src/put
+        Handler: index.lambdaHandler
+        Runtime: nodejs14.x
+        MemorySize: 128
+        Timeout: 100
+        Description: A Lambda function that returns a static string.
+        Role:
+          Fn::GetAtt: LambdaRole.Arn
+        Events:
+          Api:
+            Type: Api
+            Properties:
+              Path: /write
+              Method: post
+              RestApiId:
+                Ref: ServerApi
 
 Outputs:
   GetDataArn:

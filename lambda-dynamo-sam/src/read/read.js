@@ -4,7 +4,7 @@ const docClient = new dynamodb.DocumentClient();
 const tableName = process.env.TABLE;
 
 
-exports.readHandler = function(event) =>{
+exports.readHandler = function(event, context) =>{
     if (event.httpMethod !== 'GET') {
         throw new Error(`getAllItems only accept GET method, you tried: ${event.httpMethod}`);
     }
